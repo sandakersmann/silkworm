@@ -32,7 +32,8 @@ boost::asio::awaitable<AuthKeys> AuthInitiator::execute(common::SocketStream& st
     common::Timeout timeout(5s);
 
     AuthMessage auth_message{initiator_key_pair_, recipient_public_key_, initiator_ephemeral_key_pair_};
-    co_await (stream.send(auth_message.serialize()) || timeout());
+    Bytes auth_message_data = auth_message.serialize();
+    co_await (stream.send(auth_message_data) || timeout());
 
     Bytes auth_ack_message_data = std::get<Bytes>(co_await (stream.receive() || timeout()));
     AuthAckMessage auth_ack_message{auth_ack_message_data, initiator_key_pair_};
@@ -41,6 +42,10 @@ boost::asio::awaitable<AuthKeys> AuthInitiator::execute(common::SocketStream& st
         recipient_public_key_,
         auth_ack_message.ephemeral_public_key(),
         initiator_ephemeral_key_pair_,
+        Bytes{auth_message.nonce()},
+        Bytes{auth_ack_message.nonce()},
+        std::move(auth_message_data),
+        std::move(auth_ack_message_data),
     };
 }
 

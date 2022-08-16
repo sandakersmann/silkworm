@@ -38,12 +38,17 @@ boost::asio::awaitable<AuthKeys> AuthRecipient::execute(common::SocketStream& st
         auth_message.initiator_public_key(),
         recipient_ephemeral_key_pair_.public_key(),
     };
-    co_await (stream.send(auth_ack_message.serialize()) || timeout());
+    Bytes auth_ack_message_data = auth_ack_message.serialize();
+    co_await (stream.send(auth_ack_message_data) || timeout());
 
     co_return AuthKeys{
         auth_message.initiator_public_key(),
         auth_message.ephemeral_public_key(),
         recipient_ephemeral_key_pair_,
+        Bytes{auth_message.nonce()},
+        Bytes{auth_ack_message.nonce()},
+        std::move(auth_message_data),
+        std::move(auth_ack_message_data),
     };
 }
 

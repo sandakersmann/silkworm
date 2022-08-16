@@ -23,8 +23,15 @@ namespace silkworm::sentry::rlpx::auth {
 
 struct AuthKeys {
     common::EccPublicKey peer_public_key;
+
     common::EccPublicKey peer_ephemeral_public_key;
     common::EccKeyPair ephemeral_key_pair;
+
+    Bytes initiator_nonce;
+    Bytes recipient_nonce;
+
+    Bytes initiator_first_message_data;
+    Bytes recipient_first_message_data;
 };
 
 }  // namespace silkworm::sentry::rlpx::auth
