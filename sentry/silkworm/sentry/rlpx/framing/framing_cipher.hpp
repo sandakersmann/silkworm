@@ -17,6 +17,7 @@
 #pragma once
 
 #include <silkworm/sentry/common/ecc_key_pair.hpp>
+#include <silkworm/sentry/rlpx/crypto/sha3_hasher.hpp>
 
 namespace silkworm::sentry::rlpx::framing {
 
@@ -34,7 +35,7 @@ class FramingCipher {
     explicit FramingCipher(const KeyMaterial& key_material);
 
   private:
-    using MACHasher = x;
+    using MACHasher = crypto::Sha3Hasher;
 
     static void make_secrets(const KeyMaterial& key_material, Bytes& aes_secret, Bytes& mac_secret);
     static void init_mac_hashers(const KeyMaterial& key_material, ByteView mac_secret, MACHasher& egress_mac_hasher, MACHasher& ingress_mac_hasher);

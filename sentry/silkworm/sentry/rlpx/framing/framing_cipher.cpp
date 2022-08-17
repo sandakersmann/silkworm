@@ -15,7 +15,6 @@
 */
 
 #include "framing_cipher.hpp"
-#include <silkworm/common/util.hpp>
 #include <silkworm/sentry/rlpx/crypto/xor.hpp>
 
 namespace silkworm::sentry::rlpx::framing {
@@ -28,11 +27,10 @@ FramingCipher::FramingCipher(const KeyMaterial& key_material) {
 }
 
 Bytes keccak256(ByteView data1, ByteView data2) {
-    // TODO: unfortunate copies here, should be a hash builder instead
-    Bytes data{data1};
-    data += data2;
-    auto hash = silkworm::keccak256(data);
-    return Bytes{hash.bytes, sizeof(hash.bytes)};
+    Sha3Hasher hasher;
+    hasher.update(data1);
+    hasher.update(data2);
+    return hasher.hash();
 }
 
 void FramingCipher::make_secrets(const KeyMaterial& key_material, Bytes& aes_secret, Bytes& mac_secret) {
