@@ -16,12 +16,14 @@
 
 #pragma once
 
-#include <silkworm/sentry/common/ecc_key_pair.hpp>
-#include <silkworm/sentry/rlpx/crypto/sha3_hasher.hpp>
+#include <memory>
+#include <silkworm/common/base.hpp>
 
 namespace silkworm::sentry::rlpx::framing {
 
-class FramingCipher {
+class FramingCipherImpl;
+
+class FramingCipher final {
   public:
     struct KeyMaterial {
         Bytes ephemeral_shared_secret;
@@ -33,17 +35,10 @@ class FramingCipher {
     };
 
     explicit FramingCipher(const KeyMaterial& key_material);
+    ~FramingCipher();
 
   private:
-    using MACHasher = crypto::Sha3Hasher;
-
-    static void make_secrets(const KeyMaterial& key_material, Bytes& aes_secret, Bytes& mac_secret);
-    static void init_mac_hashers(const KeyMaterial& key_material, ByteView mac_secret, MACHasher& egress_mac_hasher, MACHasher& ingress_mac_hasher);
-
-    Bytes aes_secret_;
-    Bytes mac_secret_;
-    MACHasher egress_mac_hasher_;
-    MACHasher ingress_mac_hasher_;
+    std::unique_ptr<FramingCipherImpl> impl_;
 };
 
 }  // namespace silkworm::sentry::rlpx::framing
